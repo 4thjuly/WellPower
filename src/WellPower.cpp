@@ -23,8 +23,8 @@ time_t offTime = 0;
 void setup() {
     pinMode(POWER_SENSOR, INPUT);
     Particle.variable("PowerLevel", powerLevel);
-    Particle.variable("OnTime", (int) onTime);
-    Particle.variable("OffTime", (int) offTime);
+    Particle.variable("OnTime", onTime);
+    Particle.variable("OffTime", offTime);
 
     Particle.function("SetOnLevel", setOnLevel);
  
