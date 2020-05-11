@@ -1,6 +1,6 @@
 // Well power
 
-#define NOISE_LEVEL 100
+#define NOISE_LEVEL 10
 
 int POWER_SENSOR = A0; // 0 - 4095
  
@@ -14,25 +14,32 @@ time_t lastTransitionTime = 0;
 
 void setup() {
     pinMode(POWER_SENSOR, INPUT);
+    
     Particle.variable("PowerLevel", powerLevel);
     Particle.variable("OnTimeDelta", onTimeDelta);
     Particle.variable("OffTimeDelta", offTimeDelta);
-    Particle.variable("IsOne", isOn);
+    Particle.variable("IsOn", isOn);
     Particle.variable("OnLevel", onLevel);
 
     Particle.function("SetOnLevel", setOnLevel);
- 
-    Particle.publish("Setup", "done", PRIVATE);
+     
+    powerLevel = analogRead(POWER_SENSOR);
+    lastTransitionTime = Time.now();
+    if (powerLevel >= onLevel) { 
+        isOn = true;
+        Particle.publish("On", "true", PRIVATE);
+    } else {
+        isOn = false;
+        Particle.publish("On", "false", PRIVATE);
+    }
 }
 
-int setOnLevel(String level)
-{
+int setOnLevel(String level) {
     onLevel = level.toInt();
     if (onLevel == 0) {
         onLevel = INT_MAX;
         return false;
     }
-
     return true;
 }
 
@@ -43,7 +50,7 @@ void loop() {
     if (abs(currentPowerLevel - powerLevel) > NOISE_LEVEL) {
         powerLevel = currentPowerLevel;
         if (!isOn && powerLevel >= onLevel) { 
-            // Transition from off to on
+            // Transitioning from off to on
             isOn = true;
             lastTransitionTime = Time.now();
             Particle.publish("On", "true", PRIVATE);
@@ -53,9 +60,12 @@ void loop() {
             lastTransitionTime = Time.now();
             Particle.publish("On", "false", PRIVATE);
         }
+    }
 
-        if (isOn) onTimeDelta = Time.now() - lastTransitionTime;
-        else offTimeDelta = Time.now() - lastTransitionTime;
+    if (isOn)  { 
+        onTimeDelta = Time.now() - lastTransitionTime;
+    } else { 
+        offTimeDelta = Time.now() - lastTransitionTime;
     }
 
     delay(1s);
