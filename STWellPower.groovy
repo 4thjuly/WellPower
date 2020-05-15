@@ -9,6 +9,7 @@ metadata {
 	definition (name: "Well Monitor", namespace: "4thjuly", author: "Ian Ellison-Taylor") {
         capability "Polling"
         capability "Refresh"
+        capability "Sensor"
 	}
 
 	simulator {
@@ -16,7 +17,6 @@ metadata {
 	}
 
 	tiles(scale: 2) {
- 
         valueTile("ison", "device.ison", decoration: "flat", width: 2, height: 2) {
             state "ison", label:'${currentValue}'
         }
@@ -27,7 +27,7 @@ metadata {
             state "offtime", label:'Off for ${currentValue}s'
         }
         standardTile("refresh", "device.refresh", width: 2, height: 2, decoration: "flat") {
-			state "icon", action:"refresh.refresh", icon:"st.secondary.refresh", defaultState: true
+			state "icon", action:"Refresh.refresh", icon:"st.secondary.refresh", defaultState: true
 		}
 
         main("ison");
@@ -64,8 +64,9 @@ def parse(String description) {
 	log.debug "Parsing '${description}'"
 }
 
-def push() {
-	log.debug "Push"
+def poll() {
+    log.debug "Poll: ${new Date()}"
+    getDeviceStatus();
 }
 
 private getDeviceStatus(key) {
