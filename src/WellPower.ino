@@ -1,11 +1,12 @@
 // Well power
 
 #define NOISE_LEVEL 10
-
+#define DEFAULT_ON_LEVEL 500 
+ 
 int POWER_SENSOR = A0; // 0 - 4095
  
 int powerLevel = 0;
-int onLevel = 500; // Some reasonable emprical value 
+int onLevel = DEFAULT_ON_LEVEL; 
 bool isOn = false;
 int onTimeDelta = 0;     // How long on (seconds)
 int offTimeDelta = 0;    // How long off (seconds)
@@ -37,7 +38,7 @@ void setup() {
 int setOnLevel(String level) {
     onLevel = level.toInt();
     if (onLevel == 0) {
-        onLevel = INT_MAX;
+        onLevel = DEFAULT_ON_LEVEL;
         return false;
     }
     return true;
