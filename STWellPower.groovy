@@ -10,6 +10,7 @@ metadata {
         capability "Polling"
         capability "Refresh"
         capability "Sensor"
+        capability "Power Meter"
 	}
 
 	simulator {
@@ -17,21 +18,24 @@ metadata {
 	}
 
 	tiles(scale: 2) {
+        valueTile("power", "device.power", decoration: "flat", width: 2, height: 2) {
+            state "power", label:'Level\n${currentValue}'
+        }
         valueTile("ison", "device.ison", decoration: "flat", width: 2, height: 2) {
             state "ison", label:'${currentValue}'
         }
         valueTile("ontime", "device.ontime", decoration: "flat", width: 2, height: 2) {
-            state "ontime", label:'On for ${currentValue}s'
+            state "ontime", label:'On\n ${currentValue}s'
         }
         valueTile("offtime", "device.offtime", decoration: "flat", width: 2, height: 2) {
-            state "offtime", label:'Off for ${currentValue}s'
+            state "offtime", label:'Off\n ${currentValue}s'
         }
         standardTile("refresh", "device.refresh", width: 2, height: 2, decoration: "flat") {
 			state "icon", action:"Refresh.refresh", icon:"st.secondary.refresh", defaultState: true
 		}
 
         main("ison");
-        details(["ison", "ontime", "offtime", "refresh"])
+        details(["ison", "ontime", "offtime", "power", "refresh"])
     }
     
     preferences {
@@ -86,6 +90,10 @@ private getDeviceStatus(key) {
         httpGet("https://api.particle.io/v1/devices/${deviceId}/OffTimeDelta?access_token=${token}") { response -> 
      		log.debug "getDeviceStatus: $response.data.name $response.data.result"           
             sendEvent(name: 'offtime', value: response.data.result)
+        }
+        httpGet("https://api.particle.io/v1/devices/${deviceId}/PowerLevel?access_token=${token}") { response -> 
+     		log.debug "getDeviceStatus: $response.data.name $response.data.result"           
+            sendEvent(name: 'power', value: response.data.result)
         }
     } catch (exc) {
     	log.debug "Exception: $exc"
